@@ -36,7 +36,9 @@ var accounts = localStorage.getItem("accounts"),
     $convPrice = $("#conv-price"),
     $convOracle = $("#conv-oracle"),
     $cardReward = $("#card-reward"),
-    $cardStaking = $("#card-staking");
+    $cardStaking = $("#card-staking"),
+    $convReward = $("#conv-reward"),
+    $convStaking = $("#conv-staking");
 
 async function refresh() {
     loadData(), fiatConversion()
