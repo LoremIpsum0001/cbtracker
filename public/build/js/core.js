@@ -12,7 +12,9 @@ var accounts = localStorage.getItem("accounts"),
     bnbPrice = 0,
     usdPrice = 0,
     $table = $("#table-accounts tbody"),
-    executed = localStorage.getItem("executed");
+    executed = localStorage.getItem("executed"),
+    sheetlink = localStorage.getItem("sheet");
+
 
     currCurrency || (currCurrency = "usd"), accounts && names && (storeAccounts = JSON.parse(accounts), storeNames = JSON.parse(names)), populateCurrency(), hideAddress ? $("#btn-privacy").prop("checked", !0) : $("#btn-privacy").removeAttr("checked"), includeClaimTax ? $("#btn-tax").prop("checked", !0) : $("#btn-tax").removeAttr("checked");
 
@@ -144,6 +146,15 @@ function addAccount() {
     storeAccounts.find(e => e === t) || isAddress(t) && ($("#modal-add-account").modal("hide"), storeAccounts.push(t), storeNames[t] = e, storeAccounts && localStorage.setItem("accounts", JSON.stringify(storeAccounts)), storeNames && localStorage.setItem("names", JSON.stringify(storeNames)), refresh())
 }
 
+function addSheet() {
+    var e = $("#inp-sheet").val().trim();
+    localStorage.setItem("sheet", e)
+}
+
+function openSheet() {
+    window.open(sheetlink, '_blank');
+}
+
 function renameAccount() {
     var e = $("#inp-rename").val().trim(),
         t = $("#inp-readdress").val().trim();
@@ -254,6 +265,7 @@ function convertClaimTax(e) {
 function remove(e) {
     storeAccounts.splice(storeAccounts.indexOf(e), 1), delete storeNames[e], storeAccounts && localStorage.setItem("accounts", JSON.stringify(storeAccounts)), storeNames && localStorage.setItem("names", JSON.stringify(storeNames)), refresh()
 }
+
 async function simulate(e) {
     $("#combat-name").val(storeNames[e]), $("#combat-address").val(e), $("#combat-character").html(new Option("-- Select character --", "")), $("#combat-weapon").html(new Option("-- Select weapon --", "")), $("#combat-stamina").html(new Option("-- Select multiplier --", "")), $("#combat-result").html("");
     for (var t = 1; t <= 5; t++) $("#combat-stamina").append(`<option value="${t}">${40*t} stamina (x${t})</option>`);

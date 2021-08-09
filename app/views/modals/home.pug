@@ -86,3 +86,17 @@
         p.fs-sm.text-center.mb-0.pb-2
             | Donation address: 
             span.donate.text-white 0xe7B0cC8A098df64965FE5b89e9Dae085e04CC972    
+
+#modal-add-sheet.modal.fade(tabindex='-1' role='dialog' style='display: none;' aria-hidden='true')
+  .modal-dialog.modal-dialog-centered(role="document")
+    .modal-content.bg-dark
+      .modal-header
+        h5.modal-title.text-white
+          | Add a account
+        button(type="button", class="btn-close", data-bs-dismiss="modal", aria-label="Close")
+      .modal-body
+        form
+          .form-group.mb-3
+            input#inp-sheet.form-control.form-control.bg-dark(type='text' placeholder='Sheet Link')
+            button.btn.btn-secondary.float-right(type='button' onclick='openSheet()')
+            | Open Earning Sheet
