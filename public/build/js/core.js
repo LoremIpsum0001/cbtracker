@@ -1,655 +1,479 @@
-var accounts = localStorage.getItem('accounts')
-var names = localStorage.getItem('names')
-var hideAddress = (localStorage.getItem('hideAddress') === 'true')
-var currCurrency = localStorage.getItem('currency')
-var currencies = ['php', 'aed', 'ars', 'aud', 'brl', 'cny', 'eur', 'gbp', 'hkd', 'idr', 'inr', 'jpy', 'myr', 'sgd', 'thb', 'twd', 'usd', 'ves', 'vnd']
-var includeClaimTax = (localStorage.getItem('includeClaimTax') === 'true')
-var rewardsClaimTaxMax = 0;
-var storeAccounts = []
-var storeNames = {}
-var skillPrice = 0
-var localPrice = 0
-var bnbPrice = 0
-var usdPrice = 0
-var $table = $('#table-accounts tbody')
+var accounts = localStorage.getItem("accounts"),
+    names = localStorage.getItem("names"),
+    hideAddress = "true" === localStorage.getItem("hideAddress"),
+    currCurrency = localStorage.getItem("currency"),
+    currencies = ["php", "aed", "ars", "aud", "brl", "cny", "eur", "gbp", "hkd", "idr", "inr", "jpy", "myr", "sgd", "thb", "twd", "usd", "ves", "vnd"],
+    includeClaimTax = "true" === localStorage.getItem("includeClaimTax"),
+    rewardsClaimTaxMax = 0,
+    storeAccounts = [],
+    storeNames = {},
+    skillPrice = 0,
+    localPrice = 0,
+    bnbPrice = 0,
+    usdPrice = 0,
+    $table = $("#table-accounts tbody"),
+    executed = localStorage.getItem("executed");
 
-if (!currCurrency) currCurrency = 'usd'
-if (accounts && names) {
-    storeAccounts = JSON.parse(accounts)
-    storeNames = JSON.parse(names)
+    currCurrency || (currCurrency = "usd"), accounts && names && (storeAccounts = JSON.parse(accounts), storeNames = JSON.parse(names)), populateCurrency(), hideAddress ? $("#btn-privacy").prop("checked", !0) : $("#btn-privacy").removeAttr("checked"), includeClaimTax ? $("#btn-tax").prop("checked", !0) : $("#btn-tax").removeAttr("checked");
+
+    var $cardIngame = $("#card-ingame"),
+    $cardUnclaim = $("#card-unclaim"),
+    $cardStake = $("#card-stake"),
+    $cardWallet = $("#card-wallet"),
+    $cardTotal = $("#card-total"),
+    $cardTotalTitle = $("#card-total-title"),
+    $cardBnb = $("#card-bnb"),
+    $cardAccount = $("#card-account"),
+    $cardChar = $("#card-char"),
+    $cardPrice = $("#card-price"),
+    $cardOracle = $("#card-oracle"),
+    $convIngame = $("#conv-ingame"),
+    $convUnclaim = $("#conv-unclaim"),
+    $convStake = $("#conv-stake"),
+    $convWallet = $("#conv-wallet"),
+    $convTotal = $("#conv-total"),
+    $convBnb = $("#conv-bnb"),
+    $convPrice = $("#conv-price"),
+    $convOracle = $("#conv-oracle"),
+    $cardReward = $("#card-reward"),
+    $cardStaking = $("#card-staking");
+
+async function refresh() {
+    loadData(), fiatConversion()
 }
-
-populateCurrency()
-
-if (hideAddress) {
-    $('#btn-privacy').prop('checked', true)
-} else {
-    $('#btn-privacy').removeAttr('checked')
-}
-
-if (includeClaimTax) {
-    $('#btn-tax').prop('checked', true)
-} else {
-    $('#btn-tax').removeAttr('checked')
-}
-
-var $cardIngame = $('#card-ingame'),
-    $cardUnclaim = $('#card-unclaim'),
-    $cardStake = $('#card-stake'),
-    $cardWallet = $('#card-wallet'),
-    $cardTotal = $('#card-total'),
-    $cardTotalTitle = $('#card-total-title'),
-    $cardBnb = $('#card-bnb'),
-    $cardAccount = $('#card-account'),
-    $cardChar = $('#card-char'),
-    $cardPrice = $('#card-price'),
-    $cardOracle = $('#card-oracle'),
-    $convIngame = $('#conv-ingame'),
-    $convUnclaim = $('#conv-unclaim'),
-    $convStake = $('#conv-stake'),
-    $convWallet = $('#conv-wallet'),
-    $convTotal = $('#conv-total'),
-    $convBnb = $('#conv-bnb'),
-    $convPrice = $('#conv-price'),
-    $convOracle = $('#conv-oracle')
-
-$('document').ready(async () => {
-    priceTicker()
-    oracleTicker()
-    setRewardsClaimTaxMax()
-    setInterval(() => {
-        fiatConversion()
-    }, 1000)
-    setInterval(async() => {
-        oracleTicker()
-    }, 10000)
-    setInterval(() => {
-        priceTicker()
-    }, 30000)
-    loadData()
-})
-
-async function refresh () {
-    loadData()
-    fiatConversion()
-}
-
 async function oracleTicker() {
-    var oraclePrice = 1 / fromEther(`${await getOraclePrice()}`)
-    $cardOracle.html(`${oraclePrice.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}`)
+    var e = 1 / fromEther(`${await getOraclePrice()}`);
+    $cardOracle.html(`${e.toLocaleString("en-US",{style:"currency",currency:"USD"})}`)
 }
 
-function fiatConversion () {
-    if (isElementNotZero($cardIngame)) $convIngame.html(`(${toLocaleCurrency(convertToFiat($cardIngame.html()))})`)
-    if (isElementNotZero($cardUnclaim)) $convUnclaim.html(`(${toLocaleCurrency(convertToFiat($cardUnclaim.html()))})`)
-    if (isElementNotZero($cardStake)) $convStake.html(`(${toLocaleCurrency(convertToFiat($cardStake.html()))})`)
-    if (isElementNotZero($cardWallet)) $convWallet.html(`(${toLocaleCurrency(convertToFiat($cardWallet.html()))})`)
-    if (isElementNotZero($cardTotal)) $convTotal.html(`(${toLocaleCurrency(convertToFiat($cardTotal.html()))})`)
-    if (isElementNotZero($cardBnb)) $convBnb.html(`(${toLocaleCurrency(convertBnbToFiat($cardBnb.html()))})`)
-    if (isElementNotZero($cardOracle) && currCurrency !== 'usd') $convOracle.html(`(${toLocaleCurrency(localeCurrencyToNumber($cardOracle.html()) * usdPrice)})`)
-    if (isElementNotZero($cardPrice) && currCurrency !== 'usd') $convPrice.html(`(${toLocaleCurrency(localPrice)})`)
-}
-function clearFiat () {
-    $convIngame.html('')
-    $convUnclaim.html('')
-    $convStake.html('')
-    $convWallet.html('')
-    $convTotal.html('')
-    $convBnb.html('')
-    $convPrice.html('')
-    $convOracle.html('')
+async function poolTicker() {
+    $cardReward.html(formatNumber(fromEther(`${await getRewardsPoolBalance()}`))),
+    $cardStaking.html(formatNumber(fromEther(`${await getStakingPoolBalance()}`)))
 }
 
-function isElementNotZero ($elem) {
-    return (parseFloat(localeCurrencyToNumber($elem.html())) > 0)
+function fiatConversion() {
+    isElementNotZero($cardIngame) && $convIngame.html(`(${toLocaleCurrency(convertToFiat($cardIngame.html()))})`), 
+    isElementNotZero($cardUnclaim) && $convUnclaim.html(`(${toLocaleCurrency(convertToFiat($cardUnclaim.html()))})`), 
+    isElementNotZero($cardStake) && $convStake.html(`(${toLocaleCurrency(convertToFiat($cardStake.html()))})`), 
+    isElementNotZero($cardWallet) && $convWallet.html(`(${toLocaleCurrency(convertToFiat($cardWallet.html()))})`), 
+    isElementNotZero($cardTotal) && $convTotal.html(`(${toLocaleCurrency(convertToFiat($cardTotal.html()))})`), 
+    isElementNotZero($cardBnb) && $convBnb.html(`(${toLocaleCurrency(convertBnbToFiat($cardBnb.html()))})`), 
+    isElementNotZero($cardOracle) && "usd" !== currCurrency && $convOracle.html(`(${toLocaleCurrency(localeCurrencyToNumber($cardOracle.html())*usdPrice)})`), 
+    isElementNotZero($cardPrice) && "usd" !== currCurrency && $convPrice.html(`(${toLocaleCurrency(localPrice)})`),
+    isElementNotZero($cardReward) && $convReward.html(`(${toLocaleCurrency(convertToFiat($cardReward.html()))})`),
+    isElementNotZero($cardStaking) && $convStaking.html(`(${toLocaleCurrency(convertToFiat($cardStaking.html()))})`)
 }
 
-function localeCurrencyToNumber (val) {
-    return Number(String(val).replace(/[^0-9\.]+/g,""))
+function clearFiat() {
+    $convIngame.html(""), $convUnclaim.html(""), $convStake.html(""), $convWallet.html(""), $convTotal.html(""), $convBnb.html(""), $convPrice.html(""), $convOracle.html(""),$convReward.html(""),$convStaking.html("")
 }
 
-function convertToFiat (val) {
-    return localeCurrencyToNumber(val) * localPrice
+function isElementNotZero(e) {
+    return parseFloat(localeCurrencyToNumber(e.html())) > 0
 }
 
-function convertBnbToFiat (val) {
-    return parseFloat(val) * bnbPrice
+function localeCurrencyToNumber(e) {
+    return Number(String(e).replace(/[^0-9\.]+/g, ""))
 }
 
-function toLocaleCurrency(val) {
-    return val.toLocaleString('en-US', { style: 'currency', currency: currCurrency.toUpperCase() })
+function convertToFiat(e) {
+    return localeCurrencyToNumber(e) * localPrice
 }
 
-function formatNumber(val, dec = 6) {
-    return Number(val).toLocaleString('en', { 
-        minimumFractionDigits: dec,
-        maximumFractionDigits: dec 
-    });
+function convertBnbToFiat(e) {
+    return parseFloat(e) * bnbPrice
 }
 
-async function loadData () {
-    $('.btn-refresh').prop('disabled', true)
-    $table.html('');
-    $cardIngame.html(0)
-    $cardUnclaim.html(0)
-    $cardStake.html(0)
-    $cardWallet.html(0)
-    $cardTotal.html(0)
-    $cardTotalTitle.html(includeClaimTax === true ? "Taxed Skill Assets" : "Total Skill Assets")
-    $cardBnb.html(0)
-    $cardChar.html(0)
-    $cardAccount.html(storeAccounts.length)
-
-    
-    const fRowHtml = await Promise.all(storeAccounts.map(async (address, i) => {
-        let rowHtml = ''
-        const charIds = await getAccountCharacters(address)
-        const binance = await getBNBBalance(address)
-        const wallet = await getStakedBalance(address)
-        const staked = await getStakedRewards(address)
-        const unclaimed = await getAccountSkillReward(address)
-        const claimTax = await getOwnRewardsClaimTax(address);
-        const unclaimedTaxed = unclaimed*(1-convertClaimTax(claimTax))
-        const ingame = await getIngameSkill(address)
-        const timeLeft = await getStakedTimeLeft(address)
-
-
-        var charCount = parseInt($cardChar.html())
-        charCount += charIds.length
-        $cardChar.html(charCount)
-
-        var charLen = charIds.length
-
-        $cardIngame.html((formatNumber(parseFloat($cardIngame.html()) + parseFloat(fromEther(ingame)))))
-        $cardUnclaim.html((formatNumber(parseFloat($cardUnclaim.html()) + parseFloat(fromEther(unclaimed)))))
-        $cardStake.html((formatNumber(parseFloat($cardStake.html()) + parseFloat(fromEther(staked)))))
-        $cardWallet.html((formatNumber(parseFloat($cardWallet.html()) + parseFloat(fromEther(wallet)))))
-        $cardTotal.html((formatNumber(parseFloat($cardTotal.html()) + parseFloat(fromEther(sumOfArray([includeClaimTax === true ? unclaimedTaxed : unclaimed, staked, wallet]))))))
-        $cardTotalTitle.html(includeClaimTax === true ? "Taxed Skill Assets" : "Total Skill Assets")
-        $cardBnb.html((formatNumber(parseFloat($cardBnb.html()) + parseFloat(fromEther(binance)))))
-        
-        let charHtml = '', chars = {}
-        
-        if (charLen > 0){
-            chars = await Promise.all(charIds.map(async charId => {
-                const charData = await characterFromContract(charId, await getCharacterData(charId))
-                const exp = await getCharacterExp(charId)
-                const sta = await getCharacterStamina(charId)
-                const nextTargetExpLevel = getNextTargetExpLevel(charData.level)
-                return {
-                    charId,
-                    exp,
-                    sta,
-                    trait: charData.trait,
-                    nextLevel: nextTargetExpLevel.level + 1,
-                    nextExp: nextTargetExpLevel.exp - (parseInt(charData.xp) + parseInt(exp)),
-                    mustClaim: nextTargetExpLevel.exp - (parseInt(charData.xp) + parseInt(exp)) <= 0,
-                    level: charData.level + 1,
-                    element: charData.traitName,
-                };
-            }))
-            charHtml = `<td data-cid="${chars[0].charId}">${chars[0].charId}</td>
-                        <td>${levelToColor(chars[0].level)}</td>
-                        <td>${elemToColor(chars[0].element)}</td>
-                        <td><span data-cid="${chars[0].charId}">${chars[0].exp}</span> xp</td>
-                        <td>${chars[0].nextLevel}<br/><span style='font-size: 10px'>${(chars[0].mustClaim ? '<span class="text-gold">(Claim now)</span>' : `<span data-xp="${chars[0].charId}">(${chars[0].nextExp}</span> xp left)`)}</span></td>
-                        <td data-sta="${chars[0].charId}">${staminaToColor(chars[0].sta)}<br/>${staminaFullAt(chars[0].sta)}</td>`
-        }else{
-            charHtml = '<td colspan="6"></td>'
-        }
-        if (charLen < 1) {
-            charLen = 1
-        }
-        const skillTotal = sumOfArray([unclaimed, staked, wallet])
-        rowHtml += ` <tr class="text-white align-middle" data-row="${address}">
-                            <td rowspan="${charLen}" class='align-middle' data-id="${address}">${storeNames[address]}</td>
-                            <td rowspan="${charLen}" class='align-middle'>${addressPrivacy(address)}</td>
-                            ${charHtml}
-                            <td rowspan="${charLen}" class='align-middle'>${formatNumber(fromEther(ingame))}<br />${(Number(parseFloat(fromEther(ingame)).toFixed(6)) > 0 ? `<span style="font-size: 10px;">(${toLocaleCurrency(convertToFiat(Number(fromEther(ingame))))})</span>` : '')}</td>
-                            <td rowspan="${charLen}" class='align-middle'>${formatNumber(fromEther(unclaimed))}<br />${(Number(parseFloat(fromEther(unclaimed)).toFixed(6)) > 0 ? `<span style="font-size: 10px;">(${toLocaleCurrency(convertToFiat(Number(fromEther(unclaimed))))})</span>` : '')}</td>
-                            <td rowspan="${charLen}" class='align-middle'>${formatNumber(fromEther(staked))}<br />${(Number(parseFloat(fromEther(staked)).toFixed(6)) > 0 ? `<span style="font-size: 10px;">(${toLocaleCurrency(convertToFiat(Number(fromEther(staked))))})</span>` : '')}</td>
-                            <td rowspan="${charLen}" class='align-middle'>${formatNumber(fromEther(wallet))}<br />${(Number(parseFloat(fromEther(wallet)).toFixed(6)) > 0 ? `<span style="font-size: 10px;">(${toLocaleCurrency(convertToFiat(Number(fromEther(wallet))))})</span>` : '')}</td>
-                            <td rowspan="${charLen}" class='align-middle'>${formatNumber(fromEther(skillTotal))}<br />${(Number(parseFloat(fromEther(skillTotal)).toFixed(6)) > 0 ? `<span style="font-size: 10px;">(${toLocaleCurrency(convertToFiat(Number(fromEther(skillTotal))))})</span>` : '')}</td>
-                            <td rowspan="${charLen}" class='align-middle'>${(timeLeft > 0 ? unstakeSkillAt(timeLeft) : (Number(parseFloat(fromEther(staked)).toFixed(6)) > 0 ? '<span class="text-gold">Claim now</span>' : ''))}</td>
-                            <td rowspan="${charLen}" class='align-middle'>${bnbFormatter(formatNumber(fromEther(binance)))}<br />${(Number(parseFloat(fromEther(binance)).toFixed(6)) > 0 ? `<span style="font-size: 10px;">(${toLocaleCurrency(convertBnbToFiat(Number(fromEther(binance))))})</span>` : '')}</td>
-                            <td rowspan="${charLen}" class='align-middle'><button type="button" class="btn btn-success btn-sm mb-1" onclick="rename('${address}')">Rename</button><br>
-                            <button type="button" class="btn btn-warning btn-sm mb-1" onclick="simulate('${address}')">Combat Simulator</button><br>
-                            <button type="button" class="btn btn-danger btn-sm" onclick="remove('${address}')">Remove</button></td>
-                        </tr>`;
-        
-        if (chars.length > 1) {
-            chars.forEach((char,j) => {
-                if (j > 0) {
-                    rowHtml += `<tr class="text-white align-middle" data-row="${address}">
-                                        <td>${char.charId}</td>
-                                        <td>${levelToColor(char.level)}</td>
-                                        <td>${elemToColor(char.element)}</td>
-                                        <td><span data-cid="${char.charId}">${char.exp}</span> xp</td>
-                                        <td>${char.nextLevel}<br/><span style='font-size: 10px'>(${(char.mustClaim ? '<span class="text-gold">Claim now</span>' : `<span data-xp="${char.charId}">${char.nextExp}</span> xp left`)})</span></td>
-                                        <td>${staminaToColor(char.sta)}<br/>${staminaFullAt(char.sta)}</td>
-                                    </tr>`
-                }
-                
-            })
-        }
-        return rowHtml
-    }))
-    $table.html(fRowHtml)    
-    $('.btn-refresh').removeAttr('disabled')
-}
-
-function versionCheck() {
-    $.get('/version', (res) => {
-        if (version !== res.version) {
-            alert('CryptoBlades Tracker has a new update, please refresh your page!')
-        }
+function toLocaleCurrency(e) {
+    return e.toLocaleString("en-US", {
+        style: "currency",
+        currency: currCurrency.toUpperCase()
     })
 }
 
+function formatNumber(e, t = 6) {
+    return Number(e).toLocaleString("en", {
+        minimumFractionDigits: t,
+        maximumFractionDigits: t
+    })
+}
+async function loadData() {
+    $(".btn-refresh").prop("disabled", !0), $table.html(""), $cardIngame.html(0), $cardUnclaim.html(0), $cardStake.html(0), $cardWallet.html(0), $cardTotal.html(0), $cardTotalTitle.html(!0 === includeClaimTax ? "Taxed Skill Assets" : "Total Skill Assets"), $cardBnb.html(0), $cardChar.html(0), $cardAccount.html(storeAccounts.length);
+    const e = await Promise.all(storeAccounts.map(async (e, t) => {
+        let a = "";
+        const r = await getAccountCharacters(e),
+            n = await getBNBBalance(e),
+            o = await getStakedBalance(e),
+            c = await getStakedRewards(e),
+            l = await getAccountSkillReward(e),
+            s = l * (1 - convertClaimTax(await getOwnRewardsClaimTax(e))),
+            i = await getIngameSkill(e),
+            m = await getStakedTimeLeft(e);
+        var d = parseInt($cardChar.html());
+        d += r.length, $cardChar.html(d);
+        var u = r.length;
+        $cardIngame.html(formatNumber(parseFloat($cardIngame.html()) + parseFloat(fromEther(i)))), $cardUnclaim.html(formatNumber(parseFloat($cardUnclaim.html()) + parseFloat(fromEther(l)))), $cardStake.html(formatNumber(parseFloat($cardStake.html()) + parseFloat(fromEther(c)))), $cardWallet.html(formatNumber(parseFloat($cardWallet.html()) + parseFloat(fromEther(o)))), $cardTotal.html(formatNumber(parseFloat($cardTotal.html()) + parseFloat(fromEther(sumOfArray([!0 === includeClaimTax ? s : l, c, o]))))), $cardTotalTitle.html(!0 === includeClaimTax ? "Taxed Skill Assets" : "Total Skill Assets"), $cardBnb.html(formatNumber(parseFloat($cardBnb.html()) + parseFloat(fromEther(n))));
+        let p = "",
+            $ = {};
+        p = u > 0 ? `<td data-cid="${($=await Promise.all(r.map(async e=>{const t=await characterFromContract(e,await getCharacterData(e)),a=await getCharacterExp(e),r=await getCharacterStamina(e),n=getNextTargetExpLevel(t.level);return{charId:e,exp:a,sta:r,trait:t.trait,nextLevel:n.level+1,nextExp:n.exp-(parseInt(t.xp)+parseInt(a)),mustClaim:n.exp-(parseInt(t.xp)+parseInt(a))<=0,level:t.level+1,element:t.traitName}})))[0].charId}">${$[0].charId}</td>\n                        <td>${levelToColor($[0].level)}</td>\n                        <td>${elemToColor($[0].element)}</td>\n                        <td><span data-cid="${$[0].charId}">${$[0].exp}</span> xp</td>\n                        <td>${$[0].nextLevel}<br/><span style='font-size: 10px'>${$[0].mustClaim?'<span class="text-gold">(Claim now)</span>':`<span data-xp="${$[0].charId}">(${$[0].nextExp}</span> xp left)`}</span></td>\n                        <td data-sta="${$[0].charId}">${staminaToColor($[0].sta)}<br/>${staminaFullAt($[0].sta)}</td>` : '<td colspan="6"></td>', u < 1 && (u = 1);
+        const h = sumOfArray([l, c, o]);
+        return a += ` <tr class="text-white align-middle" data-row="${e}">\n                            <td rowspan="${u}" class='align-middle' data-id="${e}">${storeNames[e]}</td>\n                            <td rowspan="${u}" class='align-middle'>${addressPrivacy(e)}</td>\n                            ${p}\n                            <td rowspan="${u}" class='align-middle'>${formatNumber(fromEther(i))}<br />${Number(parseFloat(fromEther(i)).toFixed(6))>0?`<span style="font-size: 10px;">(${toLocaleCurrency(convertToFiat(Number(fromEther(i))))})</span>`:""}</td>\n                            <td rowspan="${u}" class='align-middle'>${formatNumber(fromEther(l))}<br />${Number(parseFloat(fromEther(l)).toFixed(6))>0?`<span style="font-size: 10px;">(${toLocaleCurrency(convertToFiat(Number(fromEther(l))))})</span>`:""}</td>\n                            <td rowspan="${u}" class='align-middle'>${formatNumber(fromEther(c))}<br />${Number(parseFloat(fromEther(c)).toFixed(6))>0?`<span style="font-size: 10px;">(${toLocaleCurrency(convertToFiat(Number(fromEther(c))))})</span>`:""}</td>\n                            <td rowspan="${u}" class='align-middle'>${formatNumber(fromEther(o))}<br />${Number(parseFloat(fromEther(o)).toFixed(6))>0?`<span style="font-size: 10px;">(${toLocaleCurrency(convertToFiat(Number(fromEther(o))))})</span>`:""}</td>\n                            <td rowspan="${u}" class='align-middle'>${formatNumber(fromEther(h))}<br />${Number(parseFloat(fromEther(h)).toFixed(6))>0?`<span style="font-size: 10px;">(${toLocaleCurrency(convertToFiat(Number(fromEther(h))))})</span>`:""}</td>\n                            <td rowspan="${u}" class='align-middle'>${m>0?unstakeSkillAt(m):Number(parseFloat(fromEther(c)).toFixed(6))>0?'<span class="text-gold">Claim now</span>':""}</td>\n                            <td rowspan="${u}" class='align-middle'>${bnbFormatter(formatNumber(fromEther(n)))}<br />${Number(parseFloat(fromEther(n)).toFixed(6))>0?`<span style="font-size: 10px;">(${toLocaleCurrency(convertBnbToFiat(Number(fromEther(n))))})</span>`:""}</td>\n                            <td rowspan="${u}" class='align-middle'><button type="button" class="btn btn-success btn-sm mb-1" onclick="rename('${e}')">Rename</button><br>\n                            <button type="button" class="btn btn-warning btn-sm mb-1" onclick="simulate('${e}')">Combat Simulator</button><br>\n                            <button type="button" class="btn btn-danger btn-sm" onclick="remove('${e}')">Remove</button></td>\n                        </tr>`, $.length > 1 && $.forEach((t, r) => {
+            r > 0 && (a += `<tr class="text-white align-middle" data-row="${e}">\n                                        <td>${t.charId}</td>\n                                        <td>${levelToColor(t.level)}</td>\n                                        <td>${elemToColor(t.element)}</td>\n                                        <td><span data-cid="${t.charId}">${t.exp}</span> xp</td>\n                                        <td>${t.nextLevel}<br/><span style='font-size: 10px'>(${t.mustClaim?'<span class="text-gold">Claim now</span>':`<span data-xp="${t.charId}">${t.nextExp}</span> xp left`})</span></td>\n                                        <td>${staminaToColor(t.sta)}<br/>${staminaFullAt(t.sta)}</td>\n                                    </tr>`)
+        }), a
+    }));
+    $table.html(e), $(".btn-refresh").removeAttr("disabled")
+}
+
+function versionCheck() {
+    $.get("/version", e => {
+        version !== e.version && alert("CryptoBlades Tracker has a new update, please refresh your page!")
+    })
+}
 
 function populateCurrency() {
-    $('#select-currency').html('');
-    $("#select-currency").append(new Option(currCurrency.toUpperCase(), currCurrency));
-    currencies.forEach(curr => {
-        if (currCurrency !== curr) {
-            $("#select-currency").append(new Option(curr.toUpperCase(), curr));
-        }
+    $("#select-currency").html(""), $("#select-currency").append(new Option(currCurrency.toUpperCase(), currCurrency)), currencies.forEach(e => {
+        currCurrency !== e && $("#select-currency").append(new Option(e.toUpperCase(), e))
     })
 }
 
 function addAccount() {
-    var name = $('#inp-name').val().trim()
-    var address = $('#inp-address').val().trim()
-    if (storeAccounts.find(account => account === address)) return
-    if (isAddress(address)) {
-        $('#modal-add-account').modal('hide');
-        storeAccounts.push(address)
-        storeNames[address] = name
-        if (storeAccounts) localStorage.setItem('accounts', JSON.stringify(storeAccounts))
-        if (storeNames) localStorage.setItem('names', JSON.stringify(storeNames))
-        refresh()
-    }
+    var e = $("#inp-name").val().trim(),
+        t = $("#inp-address").val().trim();
+    storeAccounts.find(e => e === t) || isAddress(t) && ($("#modal-add-account").modal("hide"), storeAccounts.push(t), storeNames[t] = e, storeAccounts && localStorage.setItem("accounts", JSON.stringify(storeAccounts)), storeNames && localStorage.setItem("names", JSON.stringify(storeNames)), refresh())
 }
 
 function renameAccount() {
-    var name = $('#inp-rename').val().trim()
-    var address = $('#inp-readdress').val().trim()
-    $('#modal-rename-account').modal('hide');
-    storeNames[address] = name
-    saveToLocalStorage('names', JSON.stringify(storeNames))
-    $(`td[data-id=${address}]`).html(name)
+    var e = $("#inp-rename").val().trim(),
+        t = $("#inp-readdress").val().trim();
+    $("#modal-rename-account").modal("hide"), storeNames[t] = e, saveToLocalStorage("names", JSON.stringify(storeNames)), $(`td[data-id=${t}]`).html(e)
 }
-
 async function priceTicker() {
-    $.get(`https://api.coingecko.com/api/v3/simple/price?ids=cryptoblades,binancecoin,tether&vs_currencies=${currencies.join(',')}`, async (result) => {
-        skillPrice = result.cryptoblades['usd']
-        if (currCurrency === 'ves'){
-            bnbPrice = result.cryptoblades['usd']
-            await getVESUSDPrice()
-        }else {
-            localPrice = result.cryptoblades[currCurrency]
-            bnbPrice = result.binancecoin[currCurrency]
-            usdPrice = result.tether[currCurrency]
-        }
-        $cardPrice.html(skillPrice.toLocaleString('en-US', { style: 'currency', currency: 'USD' }))
+    $.get(`https://api.coingecko.com/api/v3/simple/price?ids=cryptoblades,binancecoin,tether&vs_currencies=${currencies.join(",")}`, async e => {
+        skillPrice = e.cryptoblades.usd, "ves" === currCurrency ? (bnbPrice = e.cryptoblades.usd, await getVESUSDPrice()) : (localPrice = e.cryptoblades[currCurrency], bnbPrice = e.binancecoin[currCurrency], usdPrice = e.tether[currCurrency]), $cardPrice.html(skillPrice.toLocaleString("en-US", {
+            style: "currency",
+            currency: "USD"
+        }))
     })
 }
-
 async function getVESUSDPrice() {
-    $.get('https://s3.amazonaws.com/dolartoday/data.json', (result) => {
-        localPrice = result.USD.transferencia * skillPrice
-        usdPrice = result.USD.transferencia
-        bnbPrice = bnbPrice * usdPrice
+    $.get("https://s3.amazonaws.com/dolartoday/data.json", e => {
+        localPrice = e.USD.transferencia * skillPrice, usdPrice = e.USD.transferencia, bnbPrice *= usdPrice
     })
 }
-
 async function setRewardsClaimTaxMax() {
-    rewardsClaimTaxMax = await getRewardsClaimTaxMax();
+    rewardsClaimTaxMax = await getRewardsClaimTaxMax()
 }
 
-function charFormatter(val) {
-    return val.map(char => {
-        return `${char.charId} | Lv. ${char.level} | ${elemToColor(char.element)} | ${char.exp} xp | Lv. ${char.nextLevel} (${(!char.mustClaim ? `${char.nextExp} xp left` : '<span style="color: gold">Claim Exp</span>')}) | (${staminaToColor(char.sta)})`
-    }).join('<br>')
+function charFormatter(e) {
+    return e.map(e => `${e.charId} | Lv. ${e.level} | ${elemToColor(e.element)} | ${e.exp} xp | Lv. ${e.nextLevel} (${e.mustClaim?'<span style="color: gold">Claim Exp</span>':`${e.nextExp} xp left`}) | (${staminaToColor(e.sta)})`).join("<br>")
 }
 
-function elemToColor(elem) {
-    switch (elem) {
-        case 'Fire': return `<span style='color: red'>${elem}</span>`
-        case 'Earth': return `<span style='color: green'>${elem}</span>`
-        case 'Lightning': return `<span style='color: yellow'>${elem}</span>`
-        case 'Water': return `<span style='color: cyan'>${elem}</span>`
-        default: return `<span style='color: red'>${elem}</span>`
+function elemToColor(e) {
+    switch (e) {
+        case "Fire":
+            return `<span style='color: red'>${e}</span>`;
+        case "Earth":
+            return `<span style='color: green'>${e}</span>`;
+        case "Lightning":
+            return `<span style='color: yellow'>${e}</span>`;
+        case "Water":
+            return `<span style='color: cyan'>${e}</span>`;
+        default:
+            return `<span style='color: red'>${e}</span>`
     }
 }
 
-function staminaToColor(stamina) {
-    stamina = parseInt(stamina)
-    if (stamina < 40) return `${stamina}/200`
-    if (stamina < 80) return `<span style='color: green'>${stamina}/200</span>`
-    if (stamina < 120) return `<span style='color: yellow'>${stamina}/200</span>`
-    if (stamina < 160) return `<span style='color: orange'>${stamina}/200</span>`
-    return `<span style='color: red'>${stamina}/200</span>`
+function staminaToColor(e) {
+    return (e = parseInt(e)) < 40 ? `${e}/200` : e < 80 ? `<span style='color: green'>${e}/200</span>` : e < 120 ? `<span style='color: yellow'>${e}/200</span>` : e < 160 ? `<span style='color: orange'>${e}/200</span>` : `<span style='color: red'>${e}/200</span>`
 }
 
-function staminaFullAt(stamina) {
-    if (stamina == 200) return ''
-    stamina = parseInt(stamina);
-    let minutesToFull = (200 - stamina) * 5;
-    let dateFull = moment(new Date(new Date().getTime() + (minutesToFull * 1000 * 60))).fromNow();
-    return `<span style='font-size: 10px'>(Full ${dateFull})</span>`;
+function staminaFullAt(e) {
+    if (200 == e) return "";
+    let t = 5 * (200 - (e = parseInt(e)));
+    return `<span style='font-size: 10px'>(Full ${moment(new Date((new Date).getTime()+1e3*t*60)).fromNow()})</span>`
 }
 
-function levelToColor(level) {
-    if (level < 11) return level
-    if (level < 21) return `<span style='color: cyan'>${level}</span>`
-    if (level < 31) return `<span style='color: green'>${level}</span>`
-    if (level < 41) return `<span style='color: orange'>${level}</span>`
-    return `<span style='color: gold'>${level}</span>`
+function levelToColor(e) {
+    return e < 11 ? e : e < 21 ? `<span style='color: cyan'>${e}</span>` : e < 31 ? `<span style='color: green'>${e}</span>` : e < 41 ? `<span style='color: orange'>${e}</span>` : `<span style='color: gold'>${e}</span>`
 }
 
-function getClassFromTrait(trait) {
-    switch (parseInt(trait)) {
-        case 0: return 'color: red'
-        case 1: return 'color: green'
-        case 2: return 'color: yellow'
-        case 3: return 'color: cyan'
-        default: return 'color: red'
+function getClassFromTrait(e) {
+    switch (parseInt(e)) {
+        case 0:
+            return "color: red";
+        case 1:
+            return "color: green";
+        case 2:
+            return "color: yellow";
+        case 3:
+            return "color: cyan";
+        default:
+            return "color: red"
     }
 }
 
-function currFormatter(val) {
-    return formatNumber(val, 4)
+function currFormatter(e) {
+    return formatNumber(e, 4)
 }
 
-function balanceFormatter(val) {
-    return `<span style="color: green">${currFormatter(val.ingame)}</span> | <span style="color: cyan">${currFormatter(val.unclaimed)}</span> | <span style="color: orange">${currFormatter(val.staked)}</span> | <span style="color: red">${currFormatter(val.wallet)}</span>`
+function balanceFormatter(e) {
+    return `<span style="color: green">${currFormatter(e.ingame)}</span> | <span style="color: cyan">${currFormatter(e.unclaimed)}</span> | <span style="color: orange">${currFormatter(e.staked)}</span> | <span style="color: red">${currFormatter(e.wallet)}</span>`
 }
 
-function bnbFormatter(val) {
-    var bnb = parseFloat(val);
-    if (parseFloat(val) < 0.01) return `<span class='text-danger'>${bnb}</span>`
-    if (parseFloat(val) < 0.03) return `<span class='text-warning'>${bnb}</span>`
-    return `<span class='text-success'>${bnb}</span>`
+function bnbFormatter(e) {
+    var t = parseFloat(e);
+    return parseFloat(e) < .01 ? `<span class='text-danger'>${t}</span>` : parseFloat(e) < .03 ? `<span class='text-warning'>${t}</span>` : `<span class='text-success'>${t}</span>`
 }
 
-function stakedFormatter(val, row) {
-    return `${formatNumber(val)}${(row.timeLeft ? ` (${row.timeLeft})` : '')}`
+function stakedFormatter(e, t) {
+    return `${formatNumber(e)}${t.timeLeft?` (${t.timeLeft})`:""}`
 }
 
-function nameFormatter(val) {
-    return storeNames[val]
+function nameFormatter(e) {
+    return storeNames[e]
 }
 
-function privacyFormatter(val) {
-    if (hideAddress) return addressPrivacy(val)
-    return val
+function privacyFormatter(e) {
+    return hideAddress ? addressPrivacy(e) : e
 }
 
-function convertSkill(value) {
-    return (parseFloat(value) > 0 ? `${formatNumber(value)}<br><span class="fs-md">(${(parseFloat(value) * parseFloat(skillPrice)).toLocaleString('en-US', { style: 'currency', currency: currCurrency.toUpperCase() })})</span>` : 0)
+function convertSkill(e) {
+    return parseFloat(e) > 0 ? `${formatNumber(e)}<br><span class="fs-md">(${(parseFloat(e)*parseFloat(skillPrice)).toLocaleString("en-US",{style:"currency",currency:currCurrency.toUpperCase()})})</span>` : 0
 }
 
-function convertBNB(value) {
-    return (parseFloat(value) > 0 ? `${formatNumber(value)}<br><span class="fs-md">(${(parseFloat(value) * parseFloat(bnbPrice)).toLocaleString('en-US', { style: 'currency', currency: currCurrency.toUpperCase() })})</span>` : 0)
+function convertBNB(e) {
+    return parseFloat(e) > 0 ? `${formatNumber(e)}<br><span class="fs-md">(${(parseFloat(e)*parseFloat(bnbPrice)).toLocaleString("en-US",{style:"currency",currency:currCurrency.toUpperCase()})})</span>` : 0
 }
 
-function convertClaimTax(value) {
-    return value*0.15/rewardsClaimTaxMax
+function convertClaimTax(e) {
+    return .15 * e / rewardsClaimTaxMax
 }
 
-function remove(address) {
-    storeAccounts.splice(storeAccounts.indexOf(address), 1)
-    delete storeNames[address]
-    if (storeAccounts) localStorage.setItem('accounts', JSON.stringify(storeAccounts))
-    if (storeNames) localStorage.setItem('names', JSON.stringify(storeNames))
-    refresh()
+function remove(e) {
+    storeAccounts.splice(storeAccounts.indexOf(e), 1), delete storeNames[e], storeAccounts && localStorage.setItem("accounts", JSON.stringify(storeAccounts)), storeNames && localStorage.setItem("names", JSON.stringify(storeNames)), refresh()
 }
-
-async function simulate(address) {
-    $('#combat-name').val(storeNames[address])
-    $('#combat-address').val(address)
-    $('#combat-character').html(new Option('-- Select character --', ''))
-    $('#combat-weapon').html(new Option('-- Select weapon --', ''))
-    $('#combat-stamina').html(new Option('-- Select multiplier --', ''))
-    $('#combat-result').html('')
-
-    for(var i = 1; i <= 5; i++) {
-        $('#combat-stamina').append(`<option value="${i}">${i * 40} stamina (x${i})</option>`)
-    }
-
-    const charIds = await getAccountCharacters(address)
-    const weapIds = await getAccountWeapons(address)
-
-    const charHtml = await Promise.all(charIds.map(async charId => {
-        const charData = characterFromContract(charId, await getCharacterData(charId))
-        const sta = await getCharacterStamina(charId)
-        return `<option style="${getClassFromTrait(charData.trait)}" value="${charId}">${charId} | ${charData.traitName} | Lv. ${(charData.level + 1)} | Sta. ${sta}/200</option>`
-    }))
-    const weaponsData = await Promise.all(weapIds.map(async weapId => weaponFromContract(weapId, await getWeaponData(weapId))));
-    weaponsData.sort((a, b) => b.stars - a.stars);
-    const weapHtml = weaponsData.map(weapData => (
-        `<option style="${getClassFromTrait(weapData.trait)}" value="${weapData.id}">${weapData.id} | ${weapData.stars + 1}-star ${weapData.element}</option>`
-    ));
-    $("#combat-character").append(charHtml)
-    $("#combat-weapon").append(weapHtml)
-    $('#modal-combat').modal('show', {
-        backdrop: 'static',
-        keyboard: false
+async function simulate(e) {
+    $("#combat-name").val(storeNames[e]), $("#combat-address").val(e), $("#combat-character").html(new Option("-- Select character --", "")), $("#combat-weapon").html(new Option("-- Select weapon --", "")), $("#combat-stamina").html(new Option("-- Select multiplier --", "")), $("#combat-result").html("");
+    for (var t = 1; t <= 5; t++) $("#combat-stamina").append(`<option value="${t}">${40*t} stamina (x${t})</option>`);
+    const a = await getAccountCharacters(e),
+        r = await getAccountWeapons(e),
+        n = await Promise.all(a.map(async e => {
+            const t = characterFromContract(e, await getCharacterData(e)),
+                a = await getCharacterStamina(e);
+            return `<option style="${getClassFromTrait(t.trait)}" value="${e}">${e} | ${t.traitName} | Lv. ${t.level+1} | Sta. ${a}/200</option>`
+        })),
+        o = await Promise.all(r.map(async e => weaponFromContract(e, await getWeaponData(e))));
+    o.sort((e, t) => t.stars - e.stars);
+    const c = o.map(e => `<option style="${getClassFromTrait(e.trait)}" value="${e.id}">${e.id} | ${e.stars+1}-star ${e.element}</option>`);
+    $("#combat-character").append(n), $("#combat-weapon").append(c), $("#modal-combat").modal("show", {
+        backdrop: "static",
+        keyboard: !1
     })
 }
-
 async function combatSimulate() {
-    $('#btn-simulate').prop('disabled', true)
-    const charId = $('#combat-character').val()
-    const weapId = $('#combat-weapon').val()
-    const stamina = $('#combat-stamina').val()
-    const combatResult = $('#combat-result')
+    $("#btn-simulate").prop("disabled", !0);
+    const e = $("#combat-character").val(),
+        t = $("#combat-weapon").val(),
+        a = $("#combat-stamina").val(),
+        r = $("#combat-result");
     try {
-        if (!charId) throw Error('Please select a character.')
-        if (!weapId) throw Error('Please select a weapon.')
-        if (!stamina) throw Error('Please select a stamina multiplier.')
-
-        combatResult.html('Generating results...')
-
-        const sta = await getCharacterStamina(charId)
-        if (sta < 40 * parseInt(stamina)) throw Error('Not enough stamina')
-        const fightGasOffset = await fetchFightGasOffset()
-        const fightBaseline = await fetchFightBaseline()
-
-        const charData = characterFromContract(charId, await getCharacterData(charId))
-        const weapData = weaponFromContract(weapId, await getWeaponData(weapId))
-        const targets = await characterTargets(charId, weapId)
-        const enemies = await getEnemyDetails(targets)
-
-        combatResult.html('Enemy | Element | Power | Est. Reward | XP | Chance<br><hr>')
-        combatResult.append(await Promise.all(enemies.map(async (enemy, i) => {
-            const chance = getWinChance(charData, weapData, enemy.power, enemy.trait)
-            enemy.element = traitNumberToName(enemy.trait)
-            const reward = fromEther(await usdToSkill(web3.utils.toBN(Number(fightGasOffset) + ((Number(fightBaseline) * Math.sqrt(parseInt(enemy.power) / 1000)) * parseInt(stamina)))));
-            const alignedPower = getAlignedCharacterPower(charData, weapData)
-            const expReward = Math.floor((enemy.power / alignedPower) * 32) * parseInt(stamina)
-            return `#${i + 1} | ${elemToColor(enemy.element)} | ${enemy.power} | ${truncateToDecimals(reward, 6)} | ${expReward} | ${chanceColor(chance)}<br>`
-        })))
-        $('#btn-simulate').removeAttr('disabled')
+        if (!e) throw Error("Please select a character.");
+        if (!t) throw Error("Please select a weapon.");
+        if (!a) throw Error("Please select a stamina multiplier.");
+        if (r.html("Generating results..."), await getCharacterStamina(e) < 40 * parseInt(a)) throw Error("Not enough stamina");
+        const n = await fetchFightGasOffset(),
+            o = await fetchFightBaseline(),
+            c = characterFromContract(e, await getCharacterData(e)),
+            l = weaponFromContract(t, await getWeaponData(t)),
+            s = await characterTargets(e, t),
+            i = await getEnemyDetails(s);
+        r.html("Enemy | Element | Power | Est. Reward | XP | Chance<br><hr>"), r.append(await Promise.all(i.map(async (e, t) => {
+            const r = getWinChance(c, l, e.power, e.trait);
+            e.element = traitNumberToName(e.trait);
+            const s = fromEther(await usdToSkill(web3.utils.toBN(Number(n) + Number(o) * Math.sqrt(parseInt(e.power) / 1e3) * parseInt(a)))),
+                i = getAlignedCharacterPower(c, l),
+                m = Math.floor(e.power / i * 32) * parseInt(a);
+            return `#${t+1} | ${elemToColor(e.element)} | ${e.power} | ${truncateToDecimals(s,6)} | ${m} | ${chanceColor(r)}<br>`
+        }))), $("#btn-simulate").removeAttr("disabled")
     } catch (e) {
-        combatResult.html(e.message)
-        $('#btn-simulate').removeAttr('disabled')
+        r.html(e.message), $("#btn-simulate").removeAttr("disabled")
     }
 }
 
-function chanceColor(chance) {
-    let color = 'red'
-    if (chance >= 0.90) color = 'green'
-    if (chance >= 0.80 && chance < 0.90) color = 'yellow'
-    if (chance >= 0.70 && chance < 0.80) color = 'orange'
-    return `<span style="color: ${color}">${formatNumber(chance * 100, 2)}%</span>`
+function chanceColor(e) {
+    let t = "red";
+    return e >= .9 && (t = "green"), e >= .8 && e < .9 && (t = "yellow"), e >= .7 && e < .8 && (t = "orange"), `<span style="color: ${t}">${formatNumber(100*e,2)}%</span>`
 }
 
-function rename(address) {
-    $('#inp-rename').val(storeNames[address])
-    $('#inp-readdress').val(address)
-    $('#modal-rename-account').modal('show', {
-        backdrop: 'static',
-        keyboard: false
+function rename(e) {
+    $("#inp-rename").val(storeNames[e]), $("#inp-readdress").val(e), $("#modal-rename-account").modal("show", {
+        backdrop: "static",
+        keyboard: !1
     })
 }
 
-function addressPrivacy(address) {
-    if (hideAddress) return `${address.substr(0, 6)}...${address.substr(-4, 4)}`
-    return address
+function addressPrivacy(e) {
+    return hideAddress ? `${e.substr(0,6)}...${e.substr(-4,4)}` : e
 }
 
 function export_data() {
-    getLocalstorageToFile(`CBTracker-${new Date().getTime()}.json`)
+    getLocalstorageToFile(`CBTracker-${(new Date).getTime()}.json`)
 }
 
 function import_data() {
-    if (!window.File || !window.FileReader || !window.FileList || !window.Blob) {
-        return alert('The File APIs are not fully supported in this browser.');
-    }
-
-    var input = document.getElementById('file-import');
-    if (!input) {
-        return alert("Um, couldn't find the fileinput element.");
-    }
-    if (!input.files) {
-        return alert("This browser doesn't seem to support the `files` property of file inputs.");
-    }
-    if (!input.files[0]) {
-        return alert("Please select a file before clicking 'Import'");
-    }
-    var fileType = input.files[0].type
-    console.log(fileType)
-    if (fileType === 'application/json' || fileType === 'text/plain') {
-        var file = input.files[0];
-        var fr = new FileReader();
-        fr.readAsText(file);
-        fr.addEventListener('load', function () {
-            if (fileType === 'application/json') {
-                var { accounts, currency, hideAddress, names } = JSON.parse(fr.result)
-                storeAccounts = JSON.parse(accounts)
-                storeNames = JSON.parse(names)
-                hideAddress = (hideAddress === 'true')
-                currCurrency = currency
+    if (!(window.File && window.FileReader && window.FileList && window.Blob)) return alert("The File APIs are not fully supported in this browser.");
+    var e = document.getElementById("file-import");
+    if (!e) return alert("Um, couldn't find the fileinput element.");
+    if (!e.files) return alert("This browser doesn't seem to support the `files` property of file inputs.");
+    if (!e.files[0]) return alert("Please select a file before clicking 'Import'");
+    var t = e.files[0].type;
+    if (console.log(t), "application/json" === t || "text/plain" === t) {
+        var a = e.files[0],
+            r = new FileReader;
+        r.readAsText(a), r.addEventListener("load", function() {
+            if ("application/json" === t) {
+                var {
+                    accounts: e,
+                    currency: a,
+                    hideAddress: n,
+                    names: o
+                } = JSON.parse(r.result);
+                storeAccounts = JSON.parse(e), storeNames = JSON.parse(o), n = "true" === n, currCurrency = a
             } else {
-                var rows = fr.result.split('\n')
-                rows = rows.map(row => row.replace(/\r?\n|\r/g, ''))
-                if (rows.length) {
-                    rows.forEach(row => {
-                        var [name,address] = row.split(',')
-                        if (name && address) {
-                            if (isAddress(address) && !storeAccounts.includes(address)) {
-                                storeAccounts.push(address)
-                                storeNames[address] = name
-                            }
-                        }
-                    })
-                }
+                var c = r.result.split("\n");
+                (c = c.map(e => e.replace(/\r?\n|\r/g, ""))).length && c.forEach(e => {
+                    var [t, a] = e.split(",");
+                    t && a && isAddress(a) && !storeAccounts.includes(a) && (storeAccounts.push(a), storeNames[a] = t)
+                })
             }
-
-            if (storeAccounts) localStorage.setItem('accounts', JSON.stringify(storeAccounts))
-            if (storeNames) localStorage.setItem('names', JSON.stringify(storeNames))
-            if (hideAddress) localStorage.setItem('hideAddress', hideAddress)
-            if (currCurrency) localStorage.setItem('currency', currCurrency)
-
-            toggleHelper(hideAddress)
-            refresh()
-
-            $('#modal-import').modal('hide')
-        });
-    } else alert("Please import a valid json/text file");
+            storeAccounts && localStorage.setItem("accounts", JSON.stringify(storeAccounts)), storeNames && localStorage.setItem("names", JSON.stringify(storeNames)), n && localStorage.setItem("hideAddress", n), currCurrency && localStorage.setItem("currency", currCurrency), toggleHelper(n), refresh(), $("#modal-import").modal("hide")
+        })
+    } else alert("Please import a valid json/text file")
 }
 
-function toggleHelper(hide) {
-    if (hide) {
-        $('.toggle.btn.btn-sm').removeClass('btn-primary')
-        $('.toggle.btn.btn-sm').addClass('btn-danger off')
-    } else {
-        $('.toggle.btn.btn-sm').addClass('btn-primary')
-        $('.toggle.btn.btn-sm').removeClass('btn-danger off')
+function toggleHelper(e) {
+    e ? ($(".toggle.btn.btn-sm").removeClass("btn-primary"), $(".toggle.btn.btn-sm").addClass("btn-danger off")) : ($(".toggle.btn.btn-sm").addClass("btn-primary"), $(".toggle.btn.btn-sm").removeClass("btn-danger off"))
+}
+
+function getLocalstorageToFile(e) {
+    for (var t = {}, a = 0; a < localStorage.length; a++) {
+        var r = localStorage.key(a),
+            n = localStorage.getItem(r);
+        t[r] = n
     }
+    var o = JSON.stringify(t),
+        c = new Blob([o], {
+            type: "text/plain"
+        }),
+        l = window.URL.createObjectURL(c),
+        s = document.createElement("a");
+    s.download = e, s.innerHTML = "Download File", s.href = l, s.onclick = function() {
+        document.body.removeChild(event.target)
+    }, s.style.display = "none", document.body.appendChild(s), s.click()
 }
 
-function getLocalstorageToFile(fileName) {
-    var a = {};
-    for (var i = 0; i < localStorage.length; i++) {
-        var k = localStorage.key(i);
-        var v = localStorage.getItem(k);
-        a[k] = v;
-    }
-    var textToSave = JSON.stringify(a)
-    var textToSaveAsBlob = new Blob([textToSave], {
-        type: "text/plain"
-    });
-    var textToSaveAsURL = window.URL.createObjectURL(textToSaveAsBlob);
-    var downloadLink = document.createElement("a");
-    downloadLink.download = fileName;
-    downloadLink.innerHTML = "Download File";
-    downloadLink.href = textToSaveAsURL;
-    downloadLink.onclick = function () {
-        document.body.removeChild(event.target);
-    };
-    downloadLink.style.display = "none";
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-}
-
-function saveToLocalStorage(id, value) {
-    localStorage.setItem(id, value)
+function saveToLocalStorage(e, t) {
+    localStorage.setItem(e, t)
 }
 
 function sortTable() {
-    
-    // Disconnect the rows and get them as an array
-    var rows = $table.children().detach().get();
-    
-    // Sort it
-    rows.sort(function(left, right) {
-        // Get the text of the relevant td from left and right
-        if (parseInt($(left).data('index')) > parseInt($(right).data('index'))) return 1
-        if (parseInt($(left).data('index')) < parseInt($(right).data('index'))) return -1
-        return 0
-    });
-    
-    // Put them back in the tbody
-    $table.append(rows);
-  }
+    var e = $table.children().detach().get();
+    e.sort(function(e, t) {
+        return parseInt($(e).data("index")) > parseInt($(t).data("index")) ? 1 : parseInt($(e).data("index")) < parseInt($(t).data("index")) ? -1 : 0
+    }), $table.append(e)
+}
 
 function copy_address_to_clipboard() {
-    navigator.clipboard.writeText('0x2548696795a3bCd6A8fAe7602fc26DD95A612574').then(n => alert("Copied Address"),e => alert("Fail\n" + e));
+    navigator.clipboard.writeText("0x2548696795a3bCd6A8fAe7602fc26DD95A612574").then(e => alert("Copied Address"), e => alert("Fail\n" + e))
 }
 
-function unstakeSkillAt(timeLeft){
-    const timeLeftTimestamp = new Date(new Date().getTime() + (timeLeft * 1000))
-    return `<span title="${moment().countdown(timeLeftTimestamp)}">${moment(timeLeftTimestamp).fromNow()}`;
+function unstakeSkillAt(e) {
+    const t = new Date((new Date).getTime() + 1e3 * e);
+    return `<span title="${moment().countdown(t)}">${moment(t).fromNow()}`
 }
 
+async function sendMessage() {
+    var request = new XMLHttpRequest();
+    var e = 1 / fromEther(`${await getOraclePrice()}`);
+    var r_pool = formatNumber(fromEther(`${await getRewardsPoolBalance()}`))
+    var s_pool = formatNumber(fromEther(`${await getStakingPoolBalance()}`))
+    request.open("POST", "https://discord.com/api/webhooks/873190542031327313/DpDFKrNk7Vmp7qBKdeC2_jU81dWG67aM5bwAjgSxBHt1N7JAT2C1ofUbXwbPq0_0kn_4");
+    // replace the url in the "open" method with yours
 
-$('#btn-privacy').on('change', (e) => {
-    hideAddress = e.currentTarget.checked
-    localStorage.setItem('hideAddress', hideAddress)
-    refresh()
-})
+    request.setRequestHeader('Content-type', 'application/json');
 
-$("#btn-tax").on('change', (e) => {
-    includeClaimTax = e.currentTarget.checked
-    localStorage.setItem('includeClaimTax', includeClaimTax)
-    clearFiat()
-    refresh()
-})
+    var myEmbed = {
+        author: {
+        name: "M1EL Ticker",
+        url: 'https://discord.com/api/oauth2/authorize?client_id=871287966276939806&permissions=67108864&scope=bot',
+        icon_url: 'https://cdn.discordapp.com/avatars/871287966276939806/08c538b1bc4c924fd23d9ef7ab863560.png',
+        },
+        title: "Cryptoblades Ticker by M1EL",
+        fields: [
+            {
+              name: 'Oracle Price',
+              value: `${Math.round(e * 100) / 100}`,
+              inline: true,
+            },
+            {
+              name: 'Rewards Pool Balance',
+              value: `${r_pool}`,
+              inline: true,
+            },
+            {
+                name: 'Staking Pool Balance',
+                value: `${s_pool}`,
+                inline: false,
+            },
+            {
+                name: 'Current Skill Price',
+                value: `${skillPrice}`,
+                inline: false,
+            },
+        ],
+        color: hexToDecimal("#ffffff"),
+        footer: {
+            text: 'Created by M1EL',
+            icon_url:
+              'https://cdn.discordapp.com/avatars/824877777399578654/99670ae0484bab093a963aac2b0fc3f4.png',
+        },
+        timestamp: new Date(),
+    }
+    
+    var params = {
+        embeds: [ myEmbed ]
+    }
 
-$("#select-currency").on('change', (e) => {
-    currCurrency = e.currentTarget.value
-    localStorage.setItem('currency', currCurrency)
-    clearFiat()
-    priceTicker()
-    populateCurrency()
-    refresh()
-})
+    request.send(JSON.stringify(params));
+}
 
+$("document").ready(async () => {
 
-$('#modal-add-account').on('shown.bs.modal', function (e) {
-    $('#inp-name').val('')
-    $('#inp-address').val('')
+    if (executed == "No") {
+        localStorage.setItem("executed", "Yes"),
+        sendMessage()
+    }
+
+    priceTicker(), 
+    oracleTicker(), 
+    poolTicker(),
+    setRewardsClaimTaxMax(), 
+
+    setInterval(() => {
+        fiatConversion()
+    }, 1e3), setInterval(async () => {
+        oracleTicker(),
+        poolTicker()
+    }, 1e4), setInterval(() => {
+        priceTicker()
+    }, 3e4), loadData()
+
+}), $("#btn-privacy").on("change", e => {
+    hideAddress = e.currentTarget.checked, localStorage.setItem("hideAddress", hideAddress), refresh()
+}), $("#btn-tax").on("change", e => {
+    includeClaimTax = e.currentTarget.checked, localStorage.setItem("includeClaimTax", includeClaimTax), clearFiat(), refresh()
+}), $("#select-currency").on("change", e => {
+    currCurrency = e.currentTarget.value, localStorage.setItem("currency", currCurrency), clearFiat(), priceTicker(), populateCurrency(), refresh()
+}), $("#modal-add-account").on("shown.bs.modal", function(e) {
+    $("#inp-name").val(""), $("#inp-address").val("")
 });
