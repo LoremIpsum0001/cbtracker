@@ -5,8 +5,9 @@ const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 // const fs = require('fs');
-const http = require('http');
+//const http = require('http');
 // const https = require('https');
+const PORT = process.env.PORT || 3000
 
 const app = express();
 
@@ -45,6 +46,7 @@ app.use((req, res, next) => {
   next(err);
 });
 
+
 // error handler
 app.use((err, req, res, next) => {
   // set locals, only providing error in development
@@ -55,12 +57,13 @@ app.use((err, req, res, next) => {
   res.render('error');
 });
 
+app.listen(PORT, () => console.log(`Listening on ${ PORT }`))
 
-const httpServer = http.createServer(app);
-const httpPort = config.port || 3000;
-httpServer.listen(httpPort, 'localhost', () => {
-  console.log(`HTTP Server running on port ${httpPort}`);
-});
+//const httpServer = http.createServer(app);
+//const httpPort = config.port || 3000;
+//httpServer.listen(httpPort, 'localhost', () => {
+//  console.log(`HTTP Server running on port ${httpPort}`);
+//});
 
 /* if (process.env.NODE_ENV === 'production') {
   const credentials = {
