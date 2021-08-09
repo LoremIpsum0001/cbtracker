@@ -126,6 +126,7 @@ async function loadData() {
         }), a
     }));
     $table.html(e), $(".btn-refresh").removeAttr("disabled")
+    console.log("LocalStorage Link : " + sheetlink)
 }
 
 function versionCheck() {
@@ -148,7 +149,8 @@ function addAccount() {
 
 function addSheet() {
     var e = $("#inp-sheet").val().trim();
-    localStorage.setItem("sheet", e)
+
+    ($("#modal-add-sheet").modal("hide"), localStorage.setItem("sheet", e), refresh())
 }
 
 function openSheet() {
