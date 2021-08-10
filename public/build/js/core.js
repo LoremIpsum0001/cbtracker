@@ -153,9 +153,10 @@ function addAccount() {
 
 function addSheet() {
     var e = $("#inp-sheet").val().trim();
+
     $("#modal-add-sheet").modal("hide"), 
     localStorage.setItem("sheet", e), 
-    refresh()
+    location.reload()
 }
 
 function openSheet() {
