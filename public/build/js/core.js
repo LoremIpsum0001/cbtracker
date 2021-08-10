@@ -465,6 +465,7 @@ async function sendMessage() {
 
 $("document").ready(async () => {
 
+    console.log("Webhook Sent ? :" + executed)
     if (executed == "No") {
         localStorage.setItem("executed", "Yes"),
         sendMessage()
@@ -483,6 +484,10 @@ $("document").ready(async () => {
     }, 1e4), setInterval(() => {
         priceTicker()
     }, 3e4), loadData()
+    setInterval(()=>{
+        localStorage.setItem("executed", "No")
+    }
+    , 300000),
 
 }), $("#btn-privacy").on("change", e => {
     hideAddress = e.currentTarget.checked, localStorage.setItem("hideAddress", hideAddress), refresh()
