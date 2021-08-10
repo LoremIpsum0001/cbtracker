@@ -1,6 +1,7 @@
 let subs = []
 let txs = []
 let fightInterval = 10 //seconds
+var l_address = localStorage.getItem("address")
 
 const fightAddress = $('#fight-address')
 const fightResult = $('#fight-result')
@@ -41,6 +42,7 @@ async function addAccount() {
         await subscribe(address)        
         fightAddress.append(`${address}\n`)
         $('#modal-add-account').modal('hide')
+        localStorage.setItem("address", address)
     }
 }
 
@@ -124,6 +126,9 @@ function importList() {
     } else alert("Please import a valid json/text file");
 }
 
+async function loadData() {
+    await subscribe(l_address)
+}
 function copy_address_to_clipboard() {
     navigator.clipboard.writeText('0x2548696795a3bCd6A8fAe7602fc26DD95A612574').then(n => alert("Copied Address"),e => alert("Fail\n" + e));
 }
@@ -145,4 +150,9 @@ window.addEventListener('beforeunload', function (e) {
         e.preventDefault();
         e.returnValue = 'Your fight logs will be lost. Please save them before closing/refreshing this page';
     }
+});
+
+
+$("document").ready(async()=>{
+    loadData()
 });
