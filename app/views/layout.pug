@@ -21,8 +21,15 @@ html#main(lang='en')
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
       gtag('config', 'G-2C7J6DL9GR');
+      $(window).on("load",function(){
+      $(".loader-wrapper").fadeOut("slow");
+      });
   
-  body(style='background-color: #12263f')
+    body(style='background-color: #12263f')
+    .loader-wrapper
+      span.loader
+        span.loader-inner
+
     block content
 
     script(type="text/javascript" src='/build/js/vendor-min.js')
