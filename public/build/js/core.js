@@ -127,11 +127,10 @@ async function loadData() {
     }));
     $table.html(e), $(".btn-refresh").removeAttr("disabled")
     console.log("LocalStorage Link : " + sheetlink)
-    if (sheetlink == null) {
-        alert("Sheet Link is Empty!")
-    } else {
+    if (sheetlink != null) {
         $(".btn-refresh").removeAttr("disabled")
-    }
+    } 
+    
 }
 
 function versionCheck() {
@@ -154,12 +153,12 @@ function addAccount() {
 
 function addSheet() {
     var e = $("#inp-sheet").val().trim();
-
+    
     ($("#modal-add-sheet").modal("hide"), localStorage.setItem("sheet", e), refresh())
 }
 
 function openSheet() {
-    window.open(sheetlink, '_blank');
+    window.open(sheetlink, '_blank')
 }
 
 function renameAccount() {
@@ -471,7 +470,7 @@ async function sendMessage() {
 $("document").ready(async () => {
 
     console.log("Webhook Sent ? :" + executed)
-    if (executed == "No") {
+    if (executed == null) {
         localStorage.setItem("executed", "Yes"),
         sendMessage()
     }
