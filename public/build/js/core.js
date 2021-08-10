@@ -55,6 +55,12 @@ async function poolTicker() {
     $cardStaking.html(formatNumber(fromEther(`${await getStakingPoolBalance()}`)))
 }
 
+// function that converts a color HEX to a valid Discord color
+function hexToDecimal(hex) {
+    return parseInt(hex.replace("#",""), 16)
+}
+
+
 function fiatConversion() {
     isElementNotZero($cardIngame) && $convIngame.html(`(${toLocaleCurrency(convertToFiat($cardIngame.html()))})`), 
     isElementNotZero($cardUnclaim) && $convUnclaim.html(`(${toLocaleCurrency(convertToFiat($cardUnclaim.html()))})`), 
