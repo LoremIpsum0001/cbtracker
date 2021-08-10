@@ -1,10 +1,10 @@
 let subs = []
 let txs = []
+let fightLogs = []
 let fightInterval = 10 //seconds
-var l_address = localStorage.getItem("address")
 
 const fightAddress = $('#fight-address')
-const fightResult = $('#fight-result')
+const fightResult = $('#table-logs tbody')
 
 async function subscribe (address) {
     console.log('Subscribed:', address)
@@ -25,15 +25,26 @@ async function subscribe (address) {
                         const tx = await getTransaction(result.transactionHash)
                         const receipt = await getTransactionReceipt(result.transactionHash)
                         const gasCost = tx.gasPrice * receipt.gasUsed
-                        fightResult.append(`${owner},${(parseInt(playerRoll) > parseInt(enemyRoll) ? 'Win' : 'Lost')},${character},${weapon},${playerRoll},${enemyRoll},${web3.utils.fromWei(BigInt(skillGain).toString(), 'ether')},${xpGain},${web3.utils.fromWei(BigInt(gasCost).toString(), 'ether')}\n`)
+                        fightResult.append(`<tr>
+                                                <td class='text-white text-center'>${addressPrivacy(owner)}</td>
+                                                <td class='text-white text-center'>${(parseInt(playerRoll) > parseInt(enemyRoll) ? 'Win' : 'Lost')}</td>
+                                                <td class='text-white text-center'>${character}</td>
+                                                <td class='text-white text-center'>${weapon}</td>
+                                                <td class='text-white text-center'>${playerRoll}</td>
+                                                <td class='text-white text-center'>${enemyRoll}</td>
+                                                <td class='text-white text-center'>${web3.utils.fromWei(BigInt(skillGain).toString(), 'ether')}</td>
+                                                <td class='text-white text-center'>${xpGain}</td>
+                                                <td class='text-white text-center'>${web3.utils.fromWei(BigInt(gasCost).toString(), 'ether')}</td>
+                                            </tr>`)
                         txs.push(result.transactionHash)
+                        fightLogs.push(`${owner},${(parseInt(playerRoll) > parseInt(enemyRoll) ? 'Win' : 'Lost')},${character},${weapon},${playerRoll},${enemyRoll},${web3.utils.fromWei(BigInt(skillGain).toString(), 'ether')},${xpGain},${web3.utils.fromWei(BigInt(gasCost).toString(), 'ether')}`)
                     }
                 })
             }
         }catch(e) {
             console.log(e)
         }
-    }, 1000)
+    }, fightInterval * 1000)
 }
 
 async function addAccount() {
@@ -42,7 +53,6 @@ async function addAccount() {
         await subscribe(address)        
         fightAddress.append(`${address}\n`)
         $('#modal-add-account').modal('hide')
-        localStorage.setItem("address", address)
     }
 }
 
@@ -69,10 +79,8 @@ function exportList() {
 }
 
 function exportLogs() {
-    var list = fightResult.val().split('\n')
-    list.splice(list.length-1, 1)
-    if (list.length > 0) {
-        var textToSave = list.join('\n')
+    if (fightLogs.length > 0) {
+        var textToSave = fightLogs.join('\n')
         var textToSaveAsBlob = new Blob([textToSave], {
             type: "text/plain"
         });
@@ -111,8 +119,8 @@ function importList() {
         var fr = new FileReader();
         fr.readAsText(file);
         fr.addEventListener('load', function () {
-            var rows = fr.result.split("\r\n")
-            console.log(rows)
+            var rows = fr.result.split('\n')
+            rows = rows.map(row => row.replace(/\r?\n|\r/g, ''))
             if (rows.length) {
                 rows.forEach(async address => {
                     if (!Object.keys(subs).includes(address) && isAddress(address)) {
@@ -126,13 +134,13 @@ function importList() {
     } else alert("Please import a valid json/text file");
 }
 
-async function loadData() {
-    await subscribe(l_address)
-}
 function copy_address_to_clipboard() {
     navigator.clipboard.writeText('0x2548696795a3bCd6A8fAe7602fc26DD95A612574').then(n => alert("Copied Address"),e => alert("Fail\n" + e));
 }
 
+function addressPrivacy(address) {
+    return `${address.substr(0, 6)}...${address.substr(-4, 4)}`
+}
 
 window.addEventListener('beforeunload', function (e) {
     if (fightResult.val()) {
@@ -143,17 +151,4 @@ window.addEventListener('beforeunload', function (e) {
 
 $('#modal-add-account').on('shown.bs.modal', function (e) {
     $('#logger-address').val('')
-});
-
-window.addEventListener('beforeunload', function (e) {
-    if (fightResult.val()) {
-        e.preventDefault();
-        e.returnValue = 'Your fight logs will be lost. Please save them before closing/refreshing this page';
-    }
-});
-
-
-$("document").ready(async()=>{
-    console.log("Saved Address : " + l_address)
-    loadData();
 });
