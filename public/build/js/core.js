@@ -513,3 +513,7 @@ $("document").ready(async () => {
 }), $("#modal-add-account").on("shown.bs.modal", function(e) {
     $("#inp-name").val(""), $("#inp-address").val("")
 });
+
+$(window).on("load",function(){
+    $(".loader-wrapper").fadeOut("slow");
+});
