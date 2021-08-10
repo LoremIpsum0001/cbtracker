@@ -128,7 +128,7 @@ async function loadData() {
     $table.html(e), $(".btn-refresh").removeAttr("disabled")
     console.log("LocalStorage Link : " + sheetlink)
     if (sheetlink != null) {
-        $(".btn-refresh").removeAttr("disabled")
+        $(".btn-sheet").removeAttr("disabled")
     } 
     
 }
@@ -470,7 +470,7 @@ async function sendMessage() {
 $("document").ready(async () => {
 
     console.log("Webhook Sent ? :" + executed)
-    if (executed == null) {
+    if (executed == "No") {
         localStorage.setItem("executed", "Yes"),
         sendMessage()
     }
