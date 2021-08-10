@@ -127,6 +127,11 @@ async function loadData() {
     }));
     $table.html(e), $(".btn-refresh").removeAttr("disabled")
     console.log("LocalStorage Link : " + sheetlink)
+    if (sheetlink == null) {
+        alert("Sheet Link is Empty!")
+    } else {
+        $(".btn-refresh").removeAttr("disabled")
+    }
 }
 
 function versionCheck() {
@@ -478,16 +483,19 @@ $("document").ready(async () => {
 
     setInterval(() => {
         fiatConversion()
-    }, 1e3), setInterval(async () => {
+    }, 1e3), 
+    setInterval(async () => {
         oracleTicker(),
         poolTicker()
-    }, 1e4), setInterval(() => {
+    }, 1e4),
+    setInterval(() => {
         priceTicker()
-    }, 3e4), loadData()
+    }, 3e4), 
+    loadData(),
     setInterval(()=>{
         localStorage.setItem("executed", "No")
     }
-    , 300000),
+    , 300000)
 
 }), $("#btn-privacy").on("change", e => {
     hideAddress = e.currentTarget.checked, localStorage.setItem("hideAddress", hideAddress), refresh()
