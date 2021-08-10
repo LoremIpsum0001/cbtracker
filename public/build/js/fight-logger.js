@@ -154,5 +154,6 @@ window.addEventListener('beforeunload', function (e) {
 
 
 $("document").ready(async()=>{
-    loadData()
+    console.log("Saved Address : " + l_address)
+    loadData();
 });
