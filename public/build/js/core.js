@@ -415,6 +415,10 @@ function copy_address_to_clipboard() {
     navigator.clipboard.writeText("0x2548696795a3bCd6A8fAe7602fc26DD95A612574").then(e => alert("Copied Address"), e => alert("Fail\n" + e))
 }
 
+function copy_donation_address_to_clipboard() {
+    navigator.clipboard.writeText('0xe7B0cC8A098df64965FE5b89e9Dae085e04CC972').then(n => alert("Copied Address"),e => alert("Fail\n" + e));
+}
+
 function unstakeSkillAt(e) {
     const t = new Date((new Date).getTime() + 1e3 * e);
     return `<span title="${moment().countdown(t)}">${moment(t).fromNow()}`
