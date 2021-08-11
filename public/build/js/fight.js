@@ -2,7 +2,6 @@ let subs = []
 let txs = []
 let fightLogs = []
 let fightInterval = 10 //seconds
-var ls_address = localStorage.getItem("address")
 
 const fightAddress = $('#fight-address')
 const fightResult = $('#table-logs tbody')
@@ -54,7 +53,6 @@ async function addAccount() {
         await subscribe(address)        
         fightAddress.append(`${address}\n`)
         $('#modal-add-account').modal('hide')
-        localStorage.setItem("address", address)
     }
 }
 
@@ -152,5 +150,5 @@ window.addEventListener('beforeunload', function (e) {
 });
 
 $('#modal-add-account').on('shown.bs.modal', function (e) {
-    $('#logger-address').val(ls_address)
+    $('#logger-address').val('')
 });
