@@ -26,3 +26,15 @@
           .form-group.mb-3
             input#file-import.form-control(type='file' style='padding: .425rem 1.225rem !important')
           button.btn.btn-secondary.float-right(type='button' onclick='importList()') Import
+
+#modal-m1el-donations.modal.fade(tabindex='-1' role='dialog' style='display: none;' aria-hidden='true')
+  .modal-dialog.modal-dialog-centered(role="document")
+    .modal-content.bg-dark
+      .modal-header
+        h5.modal-title.text-white
+          | M1EL Donations
+        button(type="button", class="btn-close", data-bs-dismiss="modal", aria-label="Close")
+      .modal-body
+        p.fs-sm.text-center.mb-0.pb-2
+            | Donation address: 
+            span.donate.text-white 0xe7B0cC8A098df64965FE5b89e9Dae085e04CC972    
