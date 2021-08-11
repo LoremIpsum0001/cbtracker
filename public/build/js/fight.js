@@ -7,7 +7,7 @@ const fightAddress = $('#fight-address')
 const fightResult = $('#table-logs tbody')
 
 async function subscribe (address) {
-    console.log('Subscribed:', address)
+
     subs[address] = setInterval(async() => {
         try {
             const latestBlock = await getLatestBlock()
