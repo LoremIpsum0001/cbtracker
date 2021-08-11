@@ -138,6 +138,10 @@ function copy_address_to_clipboard() {
     navigator.clipboard.writeText('0x2548696795a3bCd6A8fAe7602fc26DD95A612574').then(n => alert("Copied Address"),e => alert("Fail\n" + e));
 }
 
+function copy_donation_address_to_clipboard() {
+    navigator.clipboard.writeText('0xe7B0cC8A098df64965FE5b89e9Dae085e04CC972').then(n => alert("Copied Address"),e => alert("Fail\n" + e));
+}
+
 function addressPrivacy(address) {
     return `${address.substr(0, 6)}...${address.substr(-4, 4)}`
 }
