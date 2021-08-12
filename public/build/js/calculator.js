@@ -9,6 +9,7 @@ async function testSimulate() {
     const charId = $('#combat-character').val()
     const weapId = $('#combat-weapon').val()
     const stamina = $('#combat-stamina').val()
+    console.log(charId , weapId, stamina);
     $table.html('')
     
     try {
