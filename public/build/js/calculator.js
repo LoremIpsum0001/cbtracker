@@ -9,14 +9,14 @@ async function testSimulate() {
     const charId = $('#combat-character').val()
     const weapId = $('#combat-weapon').val()
     const stamina = $('#combat-stamina').val()
-    console.log(charId , weapId, stamina);
+    
     $table.html('')
     
     try {
-        if (!charId) throw Error('Please enter a character.')
-        if (!weapId) throw Error('Please enter a weapon.')
-        if (!stamina) throw Error('Please select a stamina multiplier.')
-        
+        //if (!charId) throw Error('Please enter a character.')
+        //if (!weapId) throw Error('Please enter a weapon.')
+        //if (!stamina) throw Error('Please select a stamina multiplier.')
+        console.log(charId , weapId, stamina);
         $table.html('<tr><td class="text-white text-center" colspan="13">Calculating....</span></tr>')
 
         const fightGasOffset = await fetchFightGasOffset()
