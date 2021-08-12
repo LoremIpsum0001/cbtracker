@@ -4,10 +4,6 @@ var gasCost = 0.00082
 
 var $table = $('#table-result tbody')
 
-function copy_donation_address_to_clipboard() {
-    navigator.clipboard.writeText('0xe7B0cC8A098df64965FE5b89e9Dae085e04CC972').then(n => alert("Copied Address"),e => alert("Fail\n" + e));
-}
-
 async function testSimulate() {
     $('#btn-simulate').prop('disabled', true)
     const charId = $('#combat-character').val()
@@ -80,4 +76,8 @@ async function testSimulate() {
         alert(e.message)
         $('#btn-simulate').removeAttr('disabled')
     }
+}
+
+function copy_donation_address_to_clipboard() {
+    navigator.clipboard.writeText('0xe7B0cC8A098df64965FE5b89e9Dae085e04CC972').then(n => alert("Copied Address"),e => alert("Fail\n" + e));
 }
