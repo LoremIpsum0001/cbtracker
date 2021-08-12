@@ -2,12 +2,12 @@
   .modal-dialog.modal-dialog-centered(role="document")
     .modal-content.bg-dark
       .modal-header
-        h5.modal-title.text-white
+        h5.modal-title.text-cryptoblades2
           | Add Account
         button(type="button", class="btn-close", data-bs-dismiss="modal", aria-label="Close")
       .modal-body
         form
-            .p.text-white.mb-3 Add the account you want to capture fight results
+            .p.text-cryptoblades.mb-3 Add the account you want to capture fight results
             .form-group.mb-3
                 input#logger-address.form-control.form-control.bg-dark(type='text' placeholder='Address')
             button.btn.btn-cryptoblades.float-right(type='button' onclick='addAccount()')
@@ -17,12 +17,12 @@
   .modal-dialog.modal-dialog-centered(role="document")
     .modal-content.bg-dark
       .modal-header
-        h5.modal-title.text-white
+        h5.modal-title.text-cryptoblades2
           | Import List
         button(type="button", class="btn-close", data-bs-dismiss="modal", aria-label="Close")
       .modal-body
         form
-          .p.text-white.mb-3 Import a text file with account address list.<br><code>1 Line = 1 Address</code>
+          .p.text-cryptoblades.mb-3 Import a text file with account address list.<br><code>1 Line = 1 Address</code>
           .form-group.mb-3
             input#file-import.form-control(type='file' style='padding: .425rem 1.225rem !important')
           button.btn.btn-cryptoblades.float-right(type='button' onclick='importList()') Import
@@ -31,20 +31,20 @@
   .modal-dialog.modal-dialog-centered(role="document")
     .modal-content.bg-dark
       .modal-header
-        h5.modal-title.text-white
-          | M1EL Donations
+        h5.modal-title.text-cryptoblades2
+          | M1EL
         button(type="button", class="btn-close", data-bs-dismiss="modal", aria-label="Close")
       .modal-body
-        p.fs-sm.text-center.mb-0.pb-2
+        p.fs-sm.text-center.text-cryptoblades.mb-0.pb-2
             | Donation address: 
-            span.donate.text-white 0xe7B0cC8A098df64965FE5b89e9Dae085e04CC972 <button onclick='copy_donation_address_to_clipboard()' class="btn icon-button-display"><i class="fa fa-clone"  aria-hidden="true" alt="Copy"></i> </button> 
-        p.fs-sm.text-center.mb-0.pb-2
+            span.donate.text-cryptoblades2 0xe7B0cC8A098df64965FE5b89e9Dae085e04CC972 <button onclick='copy_donation_address_to_clipboard()' class="btn icon-button-display"><i class="fa fa-clone"  aria-hidden="true" alt="Copy"></i> </button> 
+        p.fs-sm.text-center.text-cryptoblades.mb-0.pb-2
             | CBEarning Tracker: 
-            span.donate.text-white 
+            span.donate.text-cryptoblades 
               br 
               |  <a href="https://bit.ly/37C0eqg" target="_blank">M1EL CB  Earning Tracker</a>
-        p.fs-sm.text-center.mb-0.pb-2
+        p.fs-sm.text-center.text-cryptoblades.mb-0.pb-2
             | M1EL Ticker Discord BOT: 
-            span.donate.text-white 
+            span.donate.text-cryptoblades 
               br 
               | <a href="https://discord.com/api/oauth2/authorize?client_id=871287966276939806&permissions=137506450432&scope=bot" target="_blank">Invite Bot</a>  
