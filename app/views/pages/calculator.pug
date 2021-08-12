@@ -2,24 +2,24 @@ main.page-wrapper
   include ../includes/menu
   section.position-relative.zindex-5.pb-4.mb-md-3.mx-5.pt-6
     .row
-      //include ../includes/alerts
+      include ../includes/alerts
     .row.mx-n2.py-2
       .col-md-12.col-sm-6.px-2.mb-3
         .card.bg-dark
           .card-header
             .row.align-items-center
               .col
-                h4.card-header-title.text-white
+                h4.card-header-title.text-cryptoblades2
                   | Rewards Calculator
           .card-body            
             .row
               .col-md-3.col-sm-6.px-2.mb-3
                 .form-group.mb-3
-                  input#combat-character.form-control.form-control.bg-dark.text-white(placeholder='Character ID')
+                  input#combat-character.form-control.form-control.bg-dark.text-cryptoblades2(placeholder='Character ID')
                 .form-group.mb-3
-                  input#combat-weapon.form-control.form-control.bg-dark.text-white(placeholder='Weapon ID')
+                  input#combat-weapon.form-control.form-control.bg-dark.text-cryptoblades2(placeholder='Weapon ID')
                 .form-group.mb-3
-                  select#combat-stamina.form-control.form-control.bg-dark.text-white
+                  select#combat-stamina.form-control.form-control.bg-dark.text-cryptoblades2
                     option(value='') -- Select multiplier --
                     option(value='1') 40 stamina (x1)
                     option(value='2') 80 stamina (x2)
@@ -31,52 +31,52 @@ main.page-wrapper
                   table#table-result.table.table-sm.card-table.table-bordered
                     thead.text-center
                       tr
-                        th.text-white.align-middle.bg-wins(rowspan=3)
+                        th.text-cryptoblades2.align-middle.bg-wins(rowspan=3)
                           | Wins
-                        th.text-white.align-middle.bg-daily(colspan=4)
+                        th.text-cryptoblades2.align-middle.bg-daily(colspan=4)
                           | Daily
-                        th.text-white.align-middle.bg-weekly(colspan=4)
+                        th.text-cryptoblades2.align-middle.bg-weekly(colspan=4)
                           | Weekly
-                        th.text-white.align-middle.bg-monthly(colspan=4)
+                        th.text-cryptoblades2.align-middle.bg-monthly(colspan=4)
                           | Monthly
                       tr 
-                        th.text-white.align-middle.bg-daily(colspan=2)
+                        th.text-cryptoblades2.align-middle.bg-daily(colspan=2)
                           | Skill
-                        th.text-white.align-middle.bg-daily(colspan=2)
+                        th.text-cryptoblades2.align-middle.bg-daily(colspan=2)
                           | Exp
-                        th.text-white.align-middle.bg-weekly(colspan=2)
+                        th.text-cryptoblades2.align-middle.bg-weekly(colspan=2)
                           | Skill
-                        th.text-white.align-middle.bg-weekly(colspan=2)
+                        th.text-cryptoblades2.align-middle.bg-weekly(colspan=2)
                           | Exp
-                        th.text-white.align-middle.bg-monthly(colspan=2)
+                        th.text-cryptoblades2.align-middle.bg-monthly(colspan=2)
                           | Skill
-                        th.text-white.align-middle.bg-monthly(colspan=2)
+                        th.text-cryptoblades2.align-middle.bg-monthly(colspan=2)
                           | Exp
                       tr 
-                        th.text-white.align-middle.bg-daily
+                        th.text-cryptoblades2.align-middle.bg-daily
                           | Min 
-                        th.text-white.align-middle.bg-daily
+                        th.text-cryptoblades2.align-middle.bg-daily
                           | Max 
-                        th.text-white.align-middle.bg-daily
+                        th.text-cryptoblades2.align-middle.bg-daily
                           | Min 
-                        th.text-white.align-middle.bg-daily
+                        th.text-cryptoblades2.align-middle.bg-daily
                           | Max 
-                        th.text-white.align-middle.bg-weekly
+                        th.text-cryptoblades2.align-middle.bg-weekly
                           | Min 
-                        th.text-white.align-middle.bg-weekly
+                        th.text-cryptoblades2.align-middle.bg-weekly
                           | Max 
-                        th.text-white.align-middle.bg-weekly
+                        th.text-cryptoblades2.align-middle.bg-weekly
                           | Min 
-                        th.text-white.align-middle.bg-weekly
+                        th.text-cryptoblades2.align-middle.bg-weekly
                           | Max 
-                        th.text-white.align-middle.bg-monthly
+                        th.text-cryptoblades2.align-middle.bg-monthly
                           | Min 
-                        th.text-white.align-middle.bg-monthly
+                        th.text-cryptoblades2.align-middle.bg-monthly
                           | Max 
-                        th.text-white.align-middle.bg-monthly
+                        th.text-cryptoblades2.align-middle.bg-monthly
                           | Min 
-                        th.text-white.align-middle.bg-monthly
+                        th.text-cryptoblades2.align-middle.bg-monthly
                           | Max 
                     tbody.text-center
-            button#btn-simulate.btn.btn-secondary(type='button' onclick='testSimulate()') Run
+            button#btn-simulate.btn.btn-cryptoblades(type='button' onclick='testSimulate()') Run
 include ../footer
