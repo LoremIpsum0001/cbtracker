@@ -22,6 +22,10 @@
 	-moz-osx-font-smoothing: grayscale
 }
 
+body {
+	background: linear-gradient(45deg, #141414 100%, #242720 0)
+}
+
 .ai-activity:before {
 	content: ""
 }
@@ -1242,7 +1246,7 @@
 	--bs-dark: #152e4d;
 	--bs-font-sans-serif: "Inter", sans-serif;
 	--bs-font-monospace: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-	--bs-gradient: linear-gradient( to right, #766df4 0%, #766df4 30%, #6a9bf4 100%);
+	--bs-gradient: linear-gradient( to right, #766df4 0%, #766df4 30%, #6a9bf4 100%)
 }
 
 *,
@@ -1260,7 +1264,7 @@ body {
 	color: #737491;
 	background-color: #fff;
 	-webkit-text-size-adjust: 100%;
-	-webkit-tap-highlight-color: transparent;
+	-webkit-tap-highlight-color: transparent
 }
 
 hr {
@@ -1437,12 +1441,12 @@ sup {
 }
 
 a {
-	color: #766df4;
+	color:red;
 	text-decoration: none
 }
 
 a:hover {
-	color: #493ef0;
+	color: white;
 	text-decoration: underline
 }
 
@@ -1479,7 +1483,7 @@ pre code {
 
 code {
 	font-size: .875em;
-	color: #d63384;
+	color: red;
 	word-wrap: break-word
 }
 
@@ -3144,9 +3148,9 @@ progress {
 	--bs-table-hover-bg: rgba(0, 0, 0, 0.05);
 	width: 100%;
 	margin-bottom: 1rem;
-	color: #737491;
+	color: #9e8a57!important;
 	vertical-align: top;
-	border-color: #e9e9f2
+	border: 2px solid #a28d54;
 }
 
 .table>:not(caption)>*>* {
@@ -3399,17 +3403,37 @@ progress {
 	font-size: 1rem;
 	font-weight: 400;
 	line-height: 1.5;
-	color: #737491;
-	background-color: #fff;
-	background-clip: padding-box;
-	border: 1px solid #dfdfeb;
+	color:#9e8a57!important;
+	background: #1f1f22;
+	background: linear-gradient(180deg, #1f1f22, #181b1e 5%, #18262d);
+	border: 2px solid #6c5f38!important;
+	border-radius: .1em!important;
 	-webkit-appearance: none;
 	-moz-appearance: none;
 	appearance: none;
-	border-radius: .75rem;
+	box-shadow: 0 0 0 0 transparent;
+  cursor: pointer;
+	transition: border-color .2s ease-in-out, box-shadow .2s ease-in-out
+}
+
+.form-select2:hover {
+	display: block;
+	padding: .5625rem 1.125rem;
+	font-size: 1rem;
+	font-weight: 400;
+	line-height: 1.5;
+	color:#9e8a57!important;
+	background: #3d3d40;
+	background: linear-gradient(180deg, #333336, #2c2f32 5%, #2c3a41);
+	border: 2px solid #6c5f38!important;
+	border-radius: .1em!important;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
 	box-shadow: 0 0 0 0 transparent;
 	transition: border-color .2s ease-in-out, box-shadow .2s ease-in-out
 }
+
 
 @media (prefers-reduced-motion:reduce) {
 	.form-control {
@@ -4443,18 +4467,21 @@ fieldset:disabled .btn {
 	border-color: #f7f7fc
 }
 
-.btn-success {
-	color: #000;
-	background-color: #16c995;
-	border-color: #16c995;
-	box-shadow: unset
+.btn-cryptoblades {
+  color: #9e8a57!important;
+	border: 2px solid #6c5f38!important;
+	border-radius: .1em!important;
+	background: #1f1f22;
+	background: linear-gradient(180deg, #1f1f22, #181b1e 5%, #18262d)
 }
 
-.btn-success:hover {
-	color: #000;
-	background-color: #39d1a5;
-	border-color: #2dcea0
+.btn-cryptoblades:hover {
+  color: #9e8a57!important;
+	border: 2px solid #9e8a57!important;
+	background: #3d3d40;
+	background: linear-gradient(180deg, #333336, #2c2f32 5%, #2c3a41)
 }
+
 
 .btn-check:focus+.btn-success,
 .btn-success:focus {
@@ -5879,7 +5906,7 @@ fieldset:disabled .btn {
 }
 
 .navbar-light .navbar-brand {
-	color: black;
+	color: #4a4b65
 }
 
 .navbar-light .navbar-brand:focus,
@@ -5925,7 +5952,7 @@ fieldset:disabled .btn {
 }
 
 .navbar-dark .navbar-brand {
-	color: white;
+	color: #fff
 }
 
 .navbar-dark .navbar-brand:focus,
@@ -5934,7 +5961,7 @@ fieldset:disabled .btn {
 }
 
 .navbar-dark .navbar-nav .nav-link {
-	color: black;
+	color: #9e8a57!important;
 }
 
 .navbar-dark .navbar-nav .nav-link:focus,
@@ -6504,6 +6531,12 @@ fieldset:disabled .btn {
 	border-color: #fff
 }
 
+.alert-cryptoblades {
+	color: #9e8a57!important;
+	background-color: rgba(46, 46, 48, .8)!important;
+	border: 2px solid #a28d54;
+}
+
 .alert-light .alert-link {
 	color: #ccc
 }
@@ -6961,12 +6994,12 @@ fieldset:disabled .btn {
 	height: .625em;
 	padding: .25em .25em;
 	color: #000;
-	background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23000'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e") center/.625em auto no-repeat;
+	background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23fc0'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e") center/1em auto no-repeat;
 	border: 0;
 	border-radius: .75rem;
 	opacity: .5
 }
-
+  
 .btn-close:hover {
 	color: #000;
 	text-decoration: none;
@@ -9764,12 +9797,16 @@ fieldset:disabled .btn {
 	color: #fff!important
 }
 
+.text-cryptoblades {
+	color: #9e8a57!important
+}
+
 .text-body {
 	color: #737491!important
 }
 
 .text-muted {
-	color: #9e9fb4!important
+	color: #b3b0a7!important
 }
 
 .text-heading {
@@ -9812,13 +9849,21 @@ fieldset:disabled .btn {
 	background-color: #f74f78!important
 }
 
+.bg-cryptoblades {
+  color: #9e8a57!important;
+  background-color: rgba(46, 46, 48, .8)!important;
+  border: 2px solid #a28d54;
+}
+
 .bg-light {
 	background-color: #fff!important
 }
 
 .bg-dark {
-	background-color: black;
-	border-color: red;
+	background-color: rgba(46, 46, 48, .8)!important;
+	border: 2px solid #a28d54;
+	cursor: pointer;
+	display: flex;
 }
 
 .bg-body {
@@ -9838,8 +9883,7 @@ fieldset:disabled .btn {
 }
 
 .bg-black {
-	border-color: red;
-	background-color: #000!important;
+	background-color: #000!important
 }
 
 .bg-gradient {
@@ -18561,7 +18605,7 @@ a.card-floating-icon:hover {
 
 .alert-light,
 .alert-secondary {
-	color: #737491;
+	color: #737491
 }
 
 .alert-light .alert-link,
@@ -18570,9 +18614,9 @@ a.card-floating-icon:hover {
 }
 
 .alert-dark {
-	border-color: red;
-	background-color: black;
-	color: #fff;
+	border-color: #152e4d;
+	background-color: #152e4d;
+	color: #fff
 }
 
 .alert-dark .alert-link {
@@ -20854,4 +20898,9 @@ html:not([dir=rtl]) .range-slider-ui.noUi-horizontal .noUi-handle {
 
 .shape-curve {
 	padding-bottom: 6.2%
+}
+
+.logo[data-v-0c385883] {
+	max-width: 230px;
+	padding-top: 7px
 }

@@ -11,7 +11,7 @@
             input#inp-name.form-control.form-control.bg-dark(type='text' placeholder='Account Name')
           .form-group.mb-3
             input#inp-address.form-control.form-control.bg-dark(type='text' placeholder='Address')
-          button.btn.btn-secondary.float-right(type='button' onclick='addAccount()')
+          button.btn.btn-cryptoblades.float-right(type='button' onclick='addAccount()')
             | Add
 
 #modal-rename-account.modal.fade(tabindex='-1' role='dialog' style='display: none;' aria-hidden='true')
@@ -26,7 +26,7 @@
           .form-group.mb-3
             input#inp-rename.form-control.form-control.bg-dark(type='text' placeholder='Account Name')
             input#inp-readdress(type='hidden')
-          button.btn.btn-secondary.float-right(type='button' onclick='renameAccount()') Save
+          button.btn.btn-cryptoblades.float-right(type='button' onclick='renameAccount()') Save
 
 #modal-combat.modal.fade(tabindex='-1' role='dialog' style='display: none;' aria-hidden='true')
   .modal-dialog.modal-dialog-centered.modal-lg(role="document")
@@ -72,7 +72,7 @@
           .p.text-white.mb-3 You may now import a text file with <code>Name,Address</code> format
           .form-group.mb-3
             input#file-import.form-control(type='file' style='padding: .425rem 1.225rem !important')
-          button.btn.btn-secondary.float-right(type='button' onclick='import_data()') Import
+          button.btn.btn-cryptoblades.float-right(type='button' onclick='import_data()') Import
 
 
 #modal-m1el.modal.fade(tabindex='-1' role='dialog' style='display: none;' aria-hidden='true')
@@ -108,5 +108,5 @@
         form
           .form-group.mb-3
             input#inp-sheet.form-control.form-control.bg-dark(type='text' placeholder='Sheet Link')
-          button.btn.btn-secondary.float-right(type='button' onclick='addSheet()') Add
+          button.btn.btn-cryptoblades.float-right(type='button' onclick='addSheet()') Add
           
