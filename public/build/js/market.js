@@ -99,4 +99,8 @@ function sortTable() {
     }
 }
 
+function copy_donation_address_to_clipboard() {
+    navigator.clipboard.writeText('0xe7B0cC8A098df64965FE5b89e9Dae085e04CC972').then(n => alert("Copied Address"),e => alert("Fail\n" + e));
+}
+
 loadWeaponListing()
