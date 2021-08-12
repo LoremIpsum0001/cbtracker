@@ -5915,7 +5915,7 @@ fieldset:disabled .btn {
 }
 
 .navbar-light .navbar-nav .nav-link {
-	color: #5a5b75
+	color: #9e8a57!important
 }
 
 .navbar-light .navbar-nav .nav-link:focus,
@@ -16838,7 +16838,7 @@ input[type=search]::-webkit-search-results-decoration {
 	width: 100%;
 	-webkit-animation: navbar-show .25s;
 	animation: navbar-show .25s;
-	background-color: #fff;
+	background-color: rgba(46,46,48,1)!important;
 	box-shadow: 0 .125rem .625rem -.1875rem rgba(0, 0, 0, .1)
 }
 
